@@ -45,38 +45,70 @@ class Program
     static void MatrixStream(object id) // Id allows me to access a specific box so 2 different threads dont access same signal
     {
         int i = (int)id;
-        char[] choseList = "AbCdEfGhIjKlMnOpQrStUvWxYz".ToCharArray();
+        char[] AllCaps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+        char[] LowerCase = "abcdefghijklmnopqrstuvwxyz".ToCharArray();
         int position = 0;
-       bool wonLottery = false;
+        bool wonLottery = true;
+        int runs = 0;
         while (kidsCanRun)
         {
             try
             {
                 //Blocks the current thread until the current WaitHandle receives a signal.   
                 toKids[i].WaitOne();
-                if (position >= choseList.Length)
+                if (wonLottery)
                 {
-                    position = 0;
-                        wonLottery = false;
-                    //reset to start of string.
-                }
-                if (Random.Shared.Next(0, 19) == 0 || wonLottery)
-                {
-                    myLine[i] = choseList[position];
-                    position++;
-                    wonLottery = true;
+                    if (runs % 2 == 0)
+                    {
+                        myLine[i] = AllCaps[Random.Shared.Next(AllCaps.Length)];
+                        position++;
+                        runs++;
+                        wonLottery = EightyPercent();
+                    }
+                    else
+                    {
+                        myLine[i] = LowerCase[Random.Shared.Next(LowerCase.Length)];
+                        position++;
+                        runs++;
+                        wonLottery = EightyPercent();
+                    }
                 }
                 else
                 {
                     myLine[i] = ' ';
+                    wonLottery = FivePercent();
                 }
             }
             finally
             {
                 //method to singal semaphore  to main
-
                 toMain[i].Set();
+
             }
         }
+    }
+
+    private static bool FivePercent()
+    {
+        bool wonLottery;
+        if (Random.Shared.Next(0, 19) == 0)
+        {
+            wonLottery = true;
+        }
+        else { wonLottery = false; }
+
+        return wonLottery;
+    }
+
+    private static bool EightyPercent()
+    {
+        bool wonLottery;
+        if (Random.Shared.Next(0, 4) == 0)
+        {
+            wonLottery = false;
+        }
+        else { wonLottery = true; }
+
+        return wonLottery;
     }
 }
