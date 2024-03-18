@@ -30,7 +30,7 @@ namespace semaphore
                 
                 for (int i = 0; i < 80; i++)
                 {
-                    toMain[i].WaitOne();//Wait
+                    toMain[i].WaitOne();//Wait for notification from kidThread
                 }
 
                 Console.WriteLine($"Line # {j,2} is: {new string(myLine)}");
@@ -43,7 +43,7 @@ namespace semaphore
             }
             Console.WriteLine("All Threads are done.");
         }
-        static void MatrixStream(object id)
+        static void MatrixStream(object id) // Id allows me to access a specific box so 2 different threads dont access same signal
         {
             int i = (int)id;
             char[] choseList = { 'a', 'b', 'c', 'd', 'e' };//Required: use A,B,C,D,E and then cycle back to A,B,C,D,E cycle to A,B,C,D,E ...continued...
