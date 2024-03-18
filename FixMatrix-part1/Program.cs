@@ -20,19 +20,19 @@ class Program
             toMain[i] = new AutoResetEvent(false);//toMain event/semaphore initialization
             tList[i].Start(i);  //NewThread start
         }
-        for (int j = 0; j < 28; j++)
+        for (int j = 0; j < 1000; j++)
         {
             for (int i = 0; i < 80; i++)
             {
+
                 toKids[i].Set();//Notify ALL kidThreads
             }
-            
             for (int i = 0; i < 80; i++)
             {
                 toMain[i].WaitOne();//Wait for notification from kidThread
             }
+            Console.WriteLine($"Line # {j,4} is: {new string(myLine)}");
 
-            Console.WriteLine($"Line # {j,2} is: {new string(myLine)}");
         }
         kidsCanRun = false;
         for (int i = 0; i < 80; i++)
@@ -45,8 +45,9 @@ class Program
     static void MatrixStream(object id) // Id allows me to access a specific box so 2 different threads dont access same signal
     {
         int i = (int)id;
-        char[] choseList = { 'a', 'b', 'c', 'd', 'e' };//Required: use A,B,C,D,E and then cycle back to A,B,C,D,E cycle to A,B,C,D,E ...continued...
+        char[] choseList = "AbCdEfGhIjKlMnOpQrStUvWxYz".ToCharArray();
         int position = 0;
+       bool wonLottery = false;
         while (kidsCanRun)
         {
             try
@@ -56,14 +57,24 @@ class Program
                 if (position >= choseList.Length)
                 {
                     position = 0;
+                        wonLottery = false;
                     //reset to start of string.
                 }
-                myLine[i] = choseList[position];
-                position++;
+                if (Random.Shared.Next(0, 19) == 0 || wonLottery)
+                {
+                    myLine[i] = choseList[position];
+                    position++;
+                    wonLottery = true;
+                }
+                else
+                {
+                    myLine[i] = ' ';
+                }
             }
             finally
             {
                 //method to singal semaphore  to main
+
                 toMain[i].Set();
             }
         }
